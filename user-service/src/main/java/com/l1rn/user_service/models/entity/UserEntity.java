@@ -1,7 +1,7 @@
 package com.l1rn.user_service.models.entity;
 
 import com.mongodb.lang.Nullable;
-import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -13,10 +13,10 @@ import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 @Document(collection = "users")
 public class UserEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Nullable

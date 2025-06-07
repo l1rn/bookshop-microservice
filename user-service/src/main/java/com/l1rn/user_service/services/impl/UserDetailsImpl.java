@@ -1,4 +1,4 @@
-package com.l1rn.user_service.services;
+package com.l1rn.user_service.services.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.l1rn.user_service.models.entity.UserEntity;
