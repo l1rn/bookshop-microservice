@@ -1,8 +1,8 @@
 package com.l1rn.user_service.security.jwt;
 
-import com.l1rn.user_service.models.entity.Role;
-import com.l1rn.user_service.models.entity.Status;
-import com.l1rn.user_service.models.entity.UserEntity;
+import com.l1rn.user_service.models.entity.user.Role;
+import com.l1rn.user_service.models.entity.user.Status;
+import com.l1rn.user_service.models.entity.user.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +49,6 @@ public class JwtUtils {
         return claimsRevolver.apply(claims);
     }
 
-
-
     public Claims extractAllClaims(String token){
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -73,6 +71,10 @@ public class JwtUtils {
         byte[] keyBytes = Base64.getDecoder()
                 .decode(jwtToken.getBytes(StandardCharsets.UTF_8));
         return new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
+
+    public String getEmailFromClaim(String token){
+        return extractClaim(token, Claims::getSubject);
     }
 
 }

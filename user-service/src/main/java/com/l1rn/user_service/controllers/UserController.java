@@ -1,7 +1,7 @@
 package com.l1rn.user_service.controllers;
 
 import com.l1rn.user_service.dto.user.CreateUser;
-import com.l1rn.user_service.models.entity.UserEntity;
+import com.l1rn.user_service.models.entity.user.UserEntity;
 import com.l1rn.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.l1rn.user_service.services.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.l1rn.user_service.models.entity.UserEntity;
+import com.l1rn.user_service.models.entity.user.UserEntity;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

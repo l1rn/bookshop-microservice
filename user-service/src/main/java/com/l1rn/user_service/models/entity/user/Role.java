@@ -1,17 +1,17 @@
-package com.l1rn.user_service.models.entity;
+package com.l1rn.user_service.models.entity.user;
 
-import com.l1rn.user_service.models.enums.EStatus;
+import com.l1rn.user_service.models.enums.ERole;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Setter
+@Document(collection = "roles")
 @Getter
-@Document(collection = "statuses")
-public class Status {
+@Setter
+public class Role {
     @Id
     private int id;
 
-    private EStatus name;
+    private ERole name;
 }
