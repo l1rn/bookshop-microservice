@@ -1,15 +1,19 @@
 spring:
-  data:
-    mongodb:
-      database: user_database
-      host: localhost
-      port: 27017
+  datasource:
+    url: jdbc:h2:mem:userdb
+    username: sa
+    password: sa
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
 
 server:
   port: 8080
 
 jwt:
   token:
+    name: "c2FkZmdhc2Vkb1trZmlmZ3BzZXJ0am1yaG9wW3RyaHJydGp0eXVram1neXVpbGh1aW87aW87"
     refresh:
-      name: "c2FkZmdhc2Vkb1trZmlmZ3BzZXJ0am1yaG9wW3RyaHJydGp0eXVram1neXVpbGh1aW87aW87"
       expiration: 60000
+    access:
+      expiration: 10000

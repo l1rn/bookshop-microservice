@@ -2,12 +2,14 @@ package com.l1rn.user_service.services.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.l1rn.user_service.models.entity.user.UserEntity;
+import com.l1rn.user_service.models.enums.ERole;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ public class UserDetailsImpl implements UserDetails {
     private String email;
     @JsonIgnore
     private String password;
+
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(int id, String username, String email, String password,
@@ -32,11 +35,8 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(UserEntity user){
-        List<GrantedAuthority> authorities = user
-                .getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
+        List<GrantedAuthority> authorities = Collections.singletonList(authority);
 
         return new UserDetailsImpl(
                 user.getId(),

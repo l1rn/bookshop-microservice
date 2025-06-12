@@ -1,26 +1,27 @@
 package com.l1rn.user_service.models.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.l1rn.user_service.models.entity.Device;
-import com.mongodb.lang.Nullable;
+import com.l1rn.user_service.models.enums.ERole;
+import com.l1rn.user_service.models.enums.EStatus;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
 @Builder
-@Document(collection = "users")
+@Table(name = "users")
 public class UserEntity implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Nullable
@@ -30,13 +31,16 @@ public class UserEntity implements Serializable {
 
     private String password;
 
-    @DBRef
-    private Set<Role> roles = new HashSet<>();
+    @OneToOne
+    @Enumerated(EnumType.STRING)
+    private ERole role;
 
-    @DBRef
-    private Set<Status> statuses = new HashSet<>();
+    @OneToOne
+    @Enumerated(EnumType.STRING)
+    private EStatus status;
 
-    @DBRef
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Device> devices = new ArrayList<>();
 
 }

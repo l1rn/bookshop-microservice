@@ -30,9 +30,9 @@ public class UserService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(request.getPassword())
-                .roles(Set.of(roleRepository.getRoleByName(ERole.ROLE_USER)))
-                .statuses(Set.of(statusRepository.findStatusByName(EStatus.STATUS_CREATED)))
+                .role(ERole.ROLE_USER)
+                .status(EStatus.STATUS_CREATED)
                 .build();
-        return userRepository.insert(user);
+        return userRepository.save(user);
     }
 }

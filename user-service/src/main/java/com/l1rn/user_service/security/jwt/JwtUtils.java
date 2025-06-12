@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
@@ -20,26 +21,35 @@ import java.util.function.Function;
 @Slf4j
 @Service
 public class JwtUtils {
-    @Value("jwt.token.refresh.name")
+    @Value("jwt.token.name")
     private String jwtToken;
     @Value("jwt.token.refresh.expiration")
     private Integer jwtExpiration;
+    @Value("jwt.token.access.expiration")
+    private Integer accessExpiration;
+
     Logger logger;
 
-    public String generateToken(UserEntity user){
+    public String generateRefreshToken(UserEntity user){
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("username", user.getUsername())
-                .claim("roles", user.getRoles()
-                        .stream()
-                        .map(Role::getId)
-                        .toList())
-                .claim("statuses", user.getStatuses()
-                        .stream()
-                        .map(Status::getId)
-                        .toList())
+                .claim("role", user.getRole())
+                .claim("status", user.getStatus())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String generateAccessToken(UserEntity user){
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .claim("username", user.getUsername())
+                .claim("role", user.getRole())
+                .claim("status", user.getStatus())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + accessExpiration))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -77,4 +87,8 @@ public class JwtUtils {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public long getExpirationMillis(String token){
+        Instant instantMillis = extractClaim(token, Claims::getExpiration).toInstant();
+        return instantMillis.toEpochMilli();
+    }
 }
