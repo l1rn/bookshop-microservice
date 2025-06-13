@@ -2,7 +2,7 @@ package com.l1rn.user_service.services;
 
 import com.l1rn.user_service.dto.auth.JwtResponse;
 import com.l1rn.user_service.dto.auth.SigninDTO;
-import com.l1rn.user_service.dto.auth.SignupDTO;
+import com.l1rn.user_service.dto.auth.SignupRequest;
 import com.l1rn.user_service.models.entity.Device;
 import com.l1rn.user_service.models.entity.Token;
 import com.l1rn.user_service.models.entity.user.UserEntity;
@@ -46,7 +46,7 @@ public class AuthorizationService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(SignupDTO request){
+    public void signup(SignupRequest request){
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Пользователь с таким ");
         }
@@ -78,6 +78,7 @@ public class AuthorizationService {
                 .hashString(fingerPrint, StandardCharsets.UTF_8)
                 .toString();
         log.info(hashDevice);
+
         Device newDevice = Device.builder()
                 .fingerPrint(hashDevice)
                 .ipAddress(ipAddress)

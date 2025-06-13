@@ -57,6 +57,7 @@ public class SecurityConfiguration {
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/**").permitAll())
 
                 .authenticationProvider(authenticationProvider(userDetailsService))
