@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Integer> {
-     Optional<Device> findByFingerprintAndUser(String fingerprint, UserEntity user);
+     Optional<Device> findByFingerPrintAndUser(String fingerprint, UserEntity user);
 }

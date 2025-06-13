@@ -1,7 +1,5 @@
 package com.l1rn.user_service.security.jwt;
 
-import com.l1rn.user_service.models.entity.user.Role;
-import com.l1rn.user_service.models.entity.user.Status;
 import com.l1rn.user_service.models.entity.user.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -21,12 +19,12 @@ import java.util.function.Function;
 @Slf4j
 @Service
 public class JwtUtils {
-    @Value("jwt.token.name")
+    @Value("${jwt.token.name}")
     private String jwtToken;
-    @Value("jwt.token.refresh.expiration")
-    private Integer jwtExpiration;
-    @Value("jwt.token.access.expiration")
-    private Integer accessExpiration;
+    @Value("${jwt.token.refresh.expiration}")
+    private long refreshExpiration;
+    @Value("${jwt.token.access.expiration}")
+    private long accessExpiration;
 
     Logger logger;
 
@@ -37,7 +35,7 @@ public class JwtUtils {
                 .claim("role", user.getRole())
                 .claim("status", user.getStatus())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSigningKey())
                 .compact();
     }

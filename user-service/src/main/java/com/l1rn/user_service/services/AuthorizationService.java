@@ -85,7 +85,7 @@ public class AuthorizationService {
                 .username(userString)
                 .build();
 
-        Device device = deviceRepository.findByFingerprintAndUser(hashDevice, user)
+        Device device = deviceRepository.findByFingerPrintAndUser(hashDevice, user)
                 .orElseGet(() -> deviceRepository.save(newDevice));
 
         String refreshToken = jwtUtils.generateRefreshToken(user);
