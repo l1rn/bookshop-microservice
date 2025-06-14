@@ -1,9 +1,11 @@
 package com.l1rn.user_service.dto.auth;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
-public class SigninDTO {
+@RequiredArgsConstructor
+public class SigninRequest {
     public String email;
     public String password;
 }

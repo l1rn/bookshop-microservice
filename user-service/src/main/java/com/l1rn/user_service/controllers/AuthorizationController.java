@@ -1,17 +1,23 @@
 package com.l1rn.user_service.controllers;
 
+import com.l1rn.user_service.dto.auth.JwtResponse;
+import com.l1rn.user_service.dto.auth.SigninRequest;
 import com.l1rn.user_service.dto.auth.SignupRequest;
 import com.l1rn.user_service.services.AuthorizationService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequestMapping("/api/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthorizationController {
@@ -23,12 +29,24 @@ public class AuthorizationController {
     @Value("${jwt.token.refresh.expiration}")
     private long cookiesRefreshAge;
 
+    @PostMapping("/register")
     private ResponseEntity<?> signup(@RequestBody SignupRequest request){
         authorizationService.signup(request);
         return ResponseEntity.ok("Пользователь создан!");
     }
 
-    private Re
+    @PostMapping("/login")
+    private ResponseEntity<?> signin(@RequestBody
+                                     SigninRequest signinRequest,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response){
+        JwtResponse authResponse = authorizationService.signin(signinRequest, request);
+
+        response.setHeader("X-Token-Expires", String.valueOf(cookiesAccessAge));
+
+        setAuthCookies(response, authResponse.getAccessToken(), authResponse.getRefreshToken());
+        return ResponseEntity.ok("Authorized");
+    }
 
     private void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken){
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)

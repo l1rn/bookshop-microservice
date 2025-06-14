@@ -1,11 +1,13 @@
 package com.l1rn.user_service.services;
 
 import com.l1rn.user_service.dto.auth.JwtResponse;
-import com.l1rn.user_service.dto.auth.SigninDTO;
+import com.l1rn.user_service.dto.auth.SigninRequest;
 import com.l1rn.user_service.dto.auth.SignupRequest;
 import com.l1rn.user_service.models.entity.Device;
 import com.l1rn.user_service.models.entity.Token;
 import com.l1rn.user_service.models.entity.user.UserEntity;
+import com.l1rn.user_service.models.enums.ERole;
+import com.l1rn.user_service.models.enums.EStatus;
 import com.l1rn.user_service.repository.DeviceRepository;
 import com.l1rn.user_service.repository.TokenRepository;
 import com.l1rn.user_service.repository.UserRepository;
@@ -53,20 +55,23 @@ public class AuthorizationService {
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(ERole.ROLE_USER)
+                .status(EStatus.STATUS_CREATED)
                 .build();
 
         userRepository.save(user);
     }
 
     @Transactional
-    public JwtResponse signin(SigninDTO signinDTO, HttpServletRequest request){
+    public JwtResponse signin(SigninRequest signinRequest, HttpServletRequest request){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        signinDTO.getEmail(),
-                        signinDTO.getPassword()
+                        signinRequest.getEmail(),
+                        signinRequest.getPassword()
                 )
         );
-        UserEntity user = userRepository.findByEmail(signinDTO.email)
+
+        UserEntity user = userRepository.findByEmail(signinRequest.getEmail())
                 .orElseThrow(() -> new AccessDeniedException("Пользователь с такой почтой не найден"));
 
         String userAgent = request.getHeader("User-Agent");

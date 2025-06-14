@@ -35,10 +35,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String token = checkToken(request);
             if(token == null){
                 filterChain.doFilter(request, response);
-                throw new AuthorizationDeniedException("Токен истек или недействителен");
+                return;
             }
+
             if(!jwtUtils.validateToken(token)){
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
 
             String email = jwtUtils.getEmailFromClaim(token);
@@ -58,7 +60,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
 
     public String checkToken(HttpServletRequest request){
         if(request.getCookies() != null){
