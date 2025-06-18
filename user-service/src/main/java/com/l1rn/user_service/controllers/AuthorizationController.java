@@ -4,6 +4,7 @@ import com.l1rn.user_service.dto.auth.JwtResponse;
 import com.l1rn.user_service.dto.auth.SigninRequest;
 import com.l1rn.user_service.dto.auth.SignupRequest;
 import com.l1rn.user_service.services.AuthorizationService;
+import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 
 @RequestMapping("/api/auth")
 @RestController
@@ -48,6 +51,41 @@ public class AuthorizationController {
         return ResponseEntity.ok("Authorized");
     }
 
+    @PostMapping("/logout")
+    private ResponseEntity<?> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("Token is empty!"));
+
+        authorizationService.deleteToken(refreshToken);
+        clearAuthCookies(response, refreshToken);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("Token is empty!"));
+
+        JwtResponse newTokens = authorizationService.refreshToken(refreshToken);
+        response.addHeader("X-Token-Expires", String.valueOf(cookiesAccessAge));
+
+        setAuthCookies(response, newTokens.getAccessToken(), newTokens.getRefreshToken());
+        return ResponseEntity.ok().build();
+    }
+
     private void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken){
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
@@ -68,17 +106,12 @@ public class AuthorizationController {
         response.setHeader("Set-Cookie", refreshToken);
     }
 
-    private void clearAuthCookies(HttpServletResponse response, String accessToken, String refreshToken){
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                .maxAge(0)
-                .path("/")
-                .build();
-        ResponseCookie refreshCookie = ResponseCookie.from("accessToken", accessToken)
+    private void clearAuthCookies(HttpServletResponse response, String refreshToken){
+        ResponseCookie refreshCookie = ResponseCookie.from("accessToken", refreshToken)
                 .maxAge(0)
                 .path("/")
                 .build();
 
-        response.setHeader("Set-Cookie", accessToken);
         response.setHeader("Set-Cookie", refreshToken);
     }
 }

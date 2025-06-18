@@ -6,6 +6,7 @@ import com.l1rn.user_service.models.enums.ERole;
 import com.l1rn.user_service.models.enums.EStatus;
 import com.l1rn.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    @Autowired
     private final UserRepository userRepository;
 
     public List<UserEntity> getAll(){

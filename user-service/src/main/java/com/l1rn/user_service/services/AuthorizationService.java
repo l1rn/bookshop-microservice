@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,15 +63,15 @@ public class AuthorizationService {
 
     @Transactional
     public JwtResponse signin(SigninRequest signinRequest, HttpServletRequest request){
+        UserEntity user = userRepository.findByEmail(signinRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Пользователь с такой почтой не найден"));
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         signinRequest.getEmail(),
                         signinRequest.getPassword()
                 )
         );
-
-        UserEntity user = userRepository.findByEmail(signinRequest.getEmail())
-                .orElseThrow(() -> new AccessDeniedException("Пользователь с такой почтой не найден"));
 
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = request.getRemoteAddr();
@@ -97,6 +96,7 @@ public class AuthorizationService {
         String refreshToken = jwtUtils.generateRefreshToken(user);
         String accessToken = jwtUtils.generateAccessToken(user);
         tokenRepository.deleteByUserAndDevice(user, device);
+        tokenRepository.flush();
 
         Token refreshTokenEntity = Token.builder()
                 .token(refreshToken)
@@ -108,5 +108,41 @@ public class AuthorizationService {
         tokenRepository.save(refreshTokenEntity);
 
         return new JwtResponse(accessToken, refreshToken);
+    }
+
+    public JwtResponse refreshToken(String refreshToken){
+        if(!jwtUtils.validateToken(refreshToken)){
+            throw new RuntimeException("Invalid refresh token!");
+        }
+
+        Token storedToken = tokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+
+        tokenRepository.delete(storedToken);
+
+        if(storedToken.getExpiryDate().isBefore(Instant.now())){
+            tokenRepository.delete(storedToken);
+            throw new RuntimeException("Refresh token expired");
+        }
+
+        UserEntity user = storedToken.getUser();
+        String accessToken = jwtUtils.generateAccessToken(user);
+        String refreshTokenUpdated = jwtUtils.generateRefreshToken(user);
+
+        Token newToken = Token.builder()
+                .token(refreshTokenUpdated)
+                .user(user)
+                .device(storedToken.getDevice())
+                .expiryDate(Instant.now().plusMillis(jwtUtils.getExpirationMillis(refreshTokenUpdated)))
+                .build();
+
+        tokenRepository.save(newToken);
+        return new JwtResponse(accessToken, refreshTokenUpdated);
+    }
+
+    @Transactional
+    public void deleteToken(String token){
+        tokenRepository.findByToken(token)
+                .ifPresent(tokenRepository::delete);
     }
 }
