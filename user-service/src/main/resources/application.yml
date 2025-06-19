@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: user-service
   h2:
     console:
       enabled: true
@@ -18,7 +20,7 @@ spring:
         format-sql: true
 
 server:
-  port: 8080
+  port: 8081
 
 jwt:
   token:
@@ -27,3 +29,8 @@ jwt:
       expiration: 60000
     access:
       expiration: 10000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8085/eureka

@@ -1,0 +1,12 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: API-GATEWAY-SERVICE
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
