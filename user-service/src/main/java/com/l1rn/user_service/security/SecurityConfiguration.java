@@ -54,6 +54,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/**").permitAll())
                 .authenticationProvider(authenticationProvider(userDetailsService))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
