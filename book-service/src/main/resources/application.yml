@@ -6,8 +6,6 @@ spring:
       host: localhost
       port: 27017
       database: book_db
-      username: sa
-      password: sa
 
 server:
   port: 8082
