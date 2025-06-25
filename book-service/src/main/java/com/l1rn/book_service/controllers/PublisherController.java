@@ -24,7 +24,7 @@ public class PublisherController {
     }
 
     @PostMapping("/publishers/add")
-    public ResponseEntity<?> createPublisher(PublisherRequest request){
+    public ResponseEntity<?> createPublisher(@RequestBody PublisherRequest request){
         try {
             return ResponseEntity.ok(publisherService.addPublisher(request));
         } catch (RuntimeException e) {
@@ -41,5 +41,17 @@ public class PublisherController {
     public ResponseEntity<?> deletePublisherById(@PathVariable String id){
         publisherService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/publishers/{id}/book/{bookId}")
+    public ResponseEntity<?> addBook(
+            @PathVariable String id,
+            @PathVariable String bookId
+    ){
+        try {
+            return ResponseEntity.ok(publisherService.addBookToPublisher(id, bookId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Something went wrong!");
+        }
     }
 }
